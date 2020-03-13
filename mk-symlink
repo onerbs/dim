@@ -1,8 +1,5 @@
 #!/bin/bash
-
-_prefix=$HOME/.local/bin
-[ ${1:-x} = x ] || _prefix=$1
-
+[ "$1" ] && _prefix=$1 || _prefix=~/.local/bin
 echo -n ln -s $PWD/dim.sh $_prefix/dim
         ln -s $PWD/dim.sh $_prefix/dim &>/dev/null && \
 echo -e ' [ \e[01;32mOK\e[0m ]' || \
