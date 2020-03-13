@@ -23,11 +23,9 @@ dim file[.d] [OPTIONS]
 
 The available options are:
 
-- `-plu *MODULE` The list of [importd/plu](https://github.com/onerbs/importd/tree/master/plu) modules
-- `-t *ARGS` The testing arguments
+- `-plu MODULES` The list of [importd/plu](https://github.com/onerbs/importd/tree/master/plu) modules
+- `-t ARGS` The testing arguments
 - `-o OUTPUT_FILE` The output file name
 - `-u` Run unit tests
 - `-r` Make release
-- `-q` Do not run on compile
-
-The args marked with a `*` are lists
+- `-q` Don't run after compile

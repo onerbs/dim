@@ -13,18 +13,18 @@ declare _file=$(fst -d . $1) _outfile _run=yes
 
 while (( $# > 0 )); do
   case $1 in
-    -plu) shift; type=module   ;;
-    -t)   shift; type=testargs ;;
-    -o)   shift; type=outfile  ;;
-    -u)   shift; U=-unittest ;;
-    -r)   shift; R=(-release -inline -boundscheck=off) ;;
-    -q)   shift; _run=no ;;
+    -plu) type=module   ;;
+    -t)   type=testargs ;;
+    -o)   type=outfile  ;;
+    -u)   U=-unittest ;;
+    -r)   R=(-release -inline -boundscheck=off) ;;
+    -q)   _run=no ;;
     *) case $type in
       module) _modules+=($1) ;;
       testargs) _testargs+=($1) ;;
       outfile) _outfile=$1 ;;
-    esac; shift ;;
-  esac
+    esac ;;
+  esac; shift
 done
 
 [ ${_outfile:-x} = x ] && _outfile=$_file
@@ -34,11 +34,12 @@ for _module in ${_modules[@]}; do
   _paths+=($IMPORT_D/plu/$_module.d)
   [ -d $IMPORT_D/lib/$_module ] && \
   for __file in $(find $IMPORT_D/lib/$_module -type f); do
+    # Q: this verification is necessary?
     [[ $__file == *.*.d ]] || _paths+=($__file)
   done
 done
 
-## DEBUG
+# # DEBUG
 # echo file:     $_file
 # echo outfile:  $_outfile
 # echo testargs: ${_testargs[@]}
