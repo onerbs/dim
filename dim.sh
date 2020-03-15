@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ ${IMPORT_D:-X} = X ] && {
+[ "$IMPORT_D" ] || {
   echo -e '\e[01;31mError:\e[0m environment variable \e[01mIMPORT_D\e[0m is not set'
   exit 34
 }
@@ -8,8 +8,8 @@
 # Usage:
 # dim FILE[.d] [-plu mod1 [...modN]] [-u|-r] [-o OUTFILE] [-t *ARGS] [-q]
 
-declare -a _testargs _modules
-declare _file=$(fst -d . $1) _outfile _run=yes
+_file=$(fst -d . $1)
+_run=yes
 
 while (( $# > 0 )); do
   case $1 in
@@ -27,9 +27,8 @@ while (( $# > 0 )); do
   esac; shift
 done
 
-[ ${_outfile:-x} = x ] && _outfile=$_file
+[ "$_outfile" ] || _outfile=$_file
 
-declare -a _paths=()
 for _module in ${_modules[@]}; do
   _paths+=($IMPORT_D/plu/$_module.d)
   [ -d $IMPORT_D/lib/$_module ] && \
