@@ -6,7 +6,7 @@
 }
 
 # Usage:
-# dim FILE[.d] [-plu mod1 [...modN]] [-u|-r] [-o OUTFILE] [-t *ARGS] [-q]
+# dim FILE[.d] [-plu MODULES] [-u|-r] [-o OUTFILE] [-t ARGS|-q]
 
 _file=$(fst -d . $1)
 _run=yes
