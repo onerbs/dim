@@ -9,9 +9,15 @@ if you wish to symlink the `dim` script to `~/.local/bin/dim` then run:
 ./mk-symlink
 ```
 
-elif you prefer to use a different prefix then run:
+else if you prefer to use a different prefix then run:
 ``` bash
 ./mk-symlink /your/prefix
+```
+`//` the above will symlink to `/your/prefix/bin/dim`
+
+(or) if you prefer the prefix without the /bin at the end then run:
+``` bash
+./mk-symlink /your/prefix -q
 ```
 `//` the above will symlink to `/your/prefix/dim`
 
@@ -21,7 +27,6 @@ to use `dim` is easy:
 ``` bash
 dim file[.d] [OPTIONS]
 ```
-
 the available options are:
 - `-plu MODULES` - the list of [plu](https://github.com/onerbs/importd/tree/master/plu) modules
 - `-t ARGS` - the testing arguments
