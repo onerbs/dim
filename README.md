@@ -1,31 +1,32 @@
 # dim
 
+compile [D](https://dlang.org) programs that uses the [importd](https://github.com/onerbs/importd) library
+
 ## Add to your PATH
 
-If you wish to symlink this script to `~/.local/bin/dim` simply run:
+if you wish to symlink the `dim` script to `~/.local/bin/dim` then run:
 ``` bash
 ./mk-symlink
 ```
 
-Or if you prefer to use a different prefix then run:
+elif you prefer to use a different prefix then run:
 ``` bash
 ./mk-symlink /your/prefix
 ```
-the above will symlink to `/your/prefix/dim`.
+`//` the above will symlink to `/your/prefix/dim`
 
 ## Usage
 
-Using `dim` is easy:
-
+to use `dim` is easy:
 ``` bash
 dim file[.d] [OPTIONS]
 ```
 
-The available options are:
-
-- `-plu MODULES` The list of [importd/plu](https://github.com/onerbs/importd/tree/master/plu) modules
-- `-t ARGS` The testing arguments
-- `-o OUTPUT_FILE` The output file name
-- `-u` Run unit tests
-- `-r` Make release
-- `-q` Don't run after compile
+the available options are:
+- `-plu MODULES` - the list of [plu](https://github.com/onerbs/importd/tree/master/plu) modules
+- `-t ARGS` - the testing arguments
+- `-o OUTFILE` - the output file name
+- `-u` - run unit tests
+- `-r` - make release
+- `-q` - do not run after compile
+**note:** if both `-t` and `-q` flags are present, only the last one will apply
