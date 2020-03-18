@@ -8,33 +8,28 @@ command -v dim &>/dev/null && {
 
 dimdir=$(dirname $(readlink -f $0))
 
-[[ ${1:-x} == /* ]] && {
-	prefix=$1/bin
-	shift
-}
-[[ ${1:-x} == -* ]] || {
-	prefix=$PWD/$1/bin
-	shift
-}
-[ ${prefix:-x} = x ] && {
+
+[ $# -eq 0 -o "$1" = -q ] && {
 	[ $EUID -eq 0 ] && \
 		prefix=/bin || \
 		prefix=~/.local/bin
 }
-[ ${1:-x} = -q ] && {
-	prefix=$(echo $prefix | sed s:/bin::)
-}
+
+while (( $# > 0 )); do
+	case $1 in
+		/*) prefix=$1/bin ;;
+		-q) prefix=$(echo ${prefix//'/bin'/}) ;;
+		 *) prefix=$PWD/$1/bin ;;
+	esac
+	shift
+done
 
 [ -e $prefix ] || {
-	echo warn: md prefix $prefix
-	mkdir -p $prefix
+	echo -e "  \e[1mwarn:\e[m creating prefix $prefix" >&2
+	# mkdir -p $prefix
 }
 
-echo -n "  symlink $dimdir/dim.sh ->> $prefix/dim"
-
-echo
-exit
-
+echo -ne "  \e[3msymlink\e[m $dimdir/dim.sh ->> $prefix/dim"
 ln -fs $dimdir/dim.sh $prefix/dim &>/dev/null && \
 echo -e ' [ \e[01;32mOK\e[0m ]' || \
 echo -e ' [ \e[01;31mFAIL\e[0m ]'
