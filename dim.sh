@@ -6,7 +6,7 @@
 }
 
 # Usage:
-# dim FILE[.d] [-plu MODULES] [-u|-r] [-o OUTFILE] [-t ARGS|-q]
+# dim path(file) [-m] [-u|-r] [-o string] [-plu seq(string)] [-t args|-q]
 
 _file_=$(echo $1 | cut -d. -f1)
 _run_=yes
@@ -17,6 +17,7 @@ while (( $# > 0 )); do
 		-t)   _type_=testargs ;;
 		-o)   _type_=outfile  ;;
 		-u)   U=-unittest ;;
+		-m)   M=-main ;;
 		-r)   R=(-release -inline -boundscheck=off) ;;
 		-q)   _run_=no ;;
 		*) case $_type_ in
@@ -67,7 +68,7 @@ for e in $_paths_; do
 	esac
 done
 
-unset __pair__ __imports_of __file__
+unset __pair__ __imports_of __file__ __pkg__ __mod__
 
 # # DEBUG
 # echo file:     $_file_
@@ -79,6 +80,8 @@ unset __pair__ __imports_of __file__
 # echo paths:    ${_clean_paths_[@]}
 # echo run:      $_run_
 # exit
+
+echo -e '\n  \e[3mnow compiling...\e[m\n'
 
 # Q: set the output dir to dist/ ? :: -od=dist
 dmd -O -de -w $U ${R[@]} -of=$_outf_ $_file_.d ${_clean_paths_[@]} || \
