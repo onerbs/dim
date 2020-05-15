@@ -13,13 +13,13 @@ else if you prefer to use a different prefix then run:
 ``` bash
 ./mk-symlink /your/prefix
 ```
-->the above will symlink to `/your/prefix/bin/dim`
+> the above will symlink to `/your/prefix/bin/dim`
 
-(or) if you prefer the prefix without the /bin at the end then run:
+(or) if you prefer the prefix without the `/bin` at the end then run:
 ``` bash
 ./mk-symlink /your/prefix -q
 ```
-->the above will symlink to `/your/prefix/dim`
+> the above will symlink to `/your/prefix/dim`
 
 ## Usage
 
