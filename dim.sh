@@ -1,92 +1,73 @@
 #!/bin/bash
 
-[ "$DIM" ] || {
-	echo -e '\e[01;31mError:\e[0m environment variable \e[DIM\e[0m is not set'
-	exit 34
+[[ -z $1 || $1 == -h || $1 == --help ]] && {
+    echo -e '\n  dim  (c) 2020  Alejandro Elí
+
+    Usage:
+    $ dim FILE [-o OUTF] [-plu MODS] [-dmd DFGS] [-u | -r] [-t ARGS | -n]
+
+    Where:
+        FILE    Is the file to compile
+        OUTF    Is the name of the compiled file
+        MODS    Are the `plu` module names
+        DFGS    Are the extra flags to pass to DMD
+        ARGS    Are the arguments to pass to the binary to test
+
+    Flags:
+        -u )    Run the unit tests
+        -r )    Create a release build
+        -n )    Do not execute the resulting binary
+        -t )    This flag *MUST* be the last
+
+        -h, --help )   Print this help and exit
+        -e, --debug )  Print debug info and exit
+'; exit
 }
 
-# Usage:
-# dim path(file) [-m] [-u|-r] [-o string] [-plu seq(string)] [-t args|-q]
+[ "$DIM" ] || {
+    echo -e "\e[31mERROR\e[m  The \e[1mDIM\e[m environment variable is \e[37mundefined\e[m"
+    exit 1
+}
 
-_file_=$(echo $1 | cut -d. -f1)
-_run_=yes
+declare _file=${1%.*} _runafter=True _debug=False
 
 while (( $# > 0 )); do
-	case $1 in
-		-plu|-lib) _type_=module; _pkg_=${1:1}   ;;
-		-t)   _type_=testargs ;;
-		-o)   _type_=outfile  ;;
-		-u)   U=-unittest ;;
-		-m)   M=-main ;;
-		-r)   R=(-release -inline -boundscheck=off) ;;
-		-q)   _run_=no ;;
-		*) case $_type_ in
-			module) _mods_+=($_pkg_/$1) ;;
-			testargs) _test_args_+=($1) ;;
-			outfile) _outf_=$1 ;;
-		esac ;;
-	esac; shift
+    case $1 in
+        -o ) shift;_outfile=$1 ;;
+        -plu ) _type=libs ;;
+        -dmd ) _type=flags ;;
+        -u ) U=(-main -unittest) ;;
+        -r ) R=(-O -release -inline -boundscheck=off) ;;
+        -n ) _runafter=False ;;
+        -t ) shift; break ;;
+        -e | --debug ) _debug=True ;;
+        *  )
+        case $_type in
+            libs ) _libs+=($1) ;;
+            flags ) _flags+=($1) ;;
+        esac ;;
+    esac; shift
 done
 
-[ "$_outf_" ] || _outf_=$_file_
+[ $_outfile ] || _outfile=$_file
+for lib in ${_libs[@]}; do
+    _files+=($(find $DIM -type f -exec grep -l $lib {} \;))
+done
+_files=($(echo ${_files[@]} | tr ' ' "\n" | sort | uniq))
+_command="dmd ${R[@]} -de -w ${U[@]} -of=$_outfile ${_flags[@]} ${_files[@]} $_file.d"
 
-
-__imports_of () {
-	grep -F import $1 |
-	cut -dt -f2- |
-	cut -d\  -f2 |
-	sed s:\;:: |
-	grep '^[^s]' |
-	sed 's_\._:_'
+[[ $_debug == True ]] && {
+    echo "
+    file:      $_file
+    outfile:   $_outfile
+    include:   ${_libs[@]}
+    dmdflags:  ${_flags[@]}
+    testargs:  $@
+    unittest:  $U
+    release:   ${R[@]}
+    runafter:  $_runafter
+    command:   $_command
+";  exit
 }
 
-echo
-for _module_ in ${_mods_[@]}; do
-	__file__=$DIM/$_module_.d # what if _module_ is a dir ?
-	_paths_+="$__file__ "
-	echo "import $_module_"
-	for __pair__ in $(__imports_of $__file__); do
-		__pkg__=$(echo $__pair__ | cut -d: -f1)
-		__mod__=$(echo $__pair__ | cut -d: -f2 | sed 's:\.:/:g')
-		echo " - dep: $__pkg__/$__mod__"
-		case $__pkg__ in
-			lib) [ -d $DIM/$__pkg__/$__mod__ ] && \
-				_paths_+="$(find $DIM/$__pkg__/$__mod__ -type f) " || \
-				_paths_+="$DIM/$__pkg__/$__mod__.d " ;;
-			*)
-				# load deps of dep
-				_paths_+="$DIM/$__pkg__/$__mod__.d " ;;
-		esac
-	done
-done
-
-declare -a _clean_paths_=()
-for e in $_paths_; do
-	case $e in
-		${_clean_paths_[@]}) ;;
-		*) _clean_paths_+=($e) ;;
-	esac
-done
-
-unset __pair__ __imports_of __file__ __pkg__ __mod__
-
-# # DEBUG
-# echo file:     $_file_
-# echo outfile:  $_outf_
-# echo testargs: ${_test_args_[@]}
-# echo modules:  ${_mods_[@]}
-# echo unittest: $U
-# echo release:  ${R[@]}
-# echo paths:    ${_clean_paths_[@]}
-# echo run:      $_run_
-# exit
-
-echo -e '\n  \e[3mnow compiling...\e[m\n'
-
-# Q: set the output dir to dist/ ? :: -od=dist
-dmd -O -de -w $U ${R[@]} -of=$_outf_ $_file_.d ${_clean_paths_[@]} || \
-rm $_outf_ 2>/dev/null; rm $_outf_.o 2>/dev/null
-
-[[ $_run_ == yes ]] && [ -x $_outf_ ] && { clear; $_outf_ ${_test_args_[@]}; }
-
-unset _file_ _mods_ _outf_ _paths_ _clean_paths_ _run_ _test_args_
+$_command && { [[ $_runafter == True && -x $_outfile ]] && $_outfile $@ || true; }
