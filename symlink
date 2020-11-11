@@ -1,37 +1,9 @@
 #!/bin/bash
 
-command -v dim &>/dev/null && {
-	echo -n '  dim found at: '
-	command -v dim
-	exit 0
-}
+# Usage: symlink [PREFIX]
 
-dimdir=$(dirname $(readlink -f $0))
-
-
-[ $# -eq 0 -o "$1" = -q ] && {
-	[ $EUID -eq 0 ] && \
-		prefix=/bin || \
-		prefix=~/.local/bin
-}
-
-while (( $# > 0 )); do
-	case $1 in
-		/*) prefix=$1/bin ;;
-		-q) prefix=$(echo ${prefix//'/bin'/}) ;;
-		 *) prefix=$PWD/$1/bin ;;
-	esac
-	shift
-done
-
-[ -e $prefix ] || {
-	echo -e "  \e[1mwarn:\e[m creating prefix $prefix" >&2
-	# mkdir -p $prefix
-}
-
-echo -ne "  \e[3msymlink\e[m $dimdir/dim.sh ->> $prefix/dim"
-ln -fs $dimdir/dim.sh $prefix/dim &>/dev/null && \
-echo -e ' [ \e[01;32mOK\e[0m ]' || \
-echo -e ' [ \e[01;31mFAIL\e[0m ]'
-
-unset dimdir prefix
+prefix=${1:-~/.local/bin}
+echo -n ln -s $PWD/dim.sh $prefix/dim
+        ln -s $PWD/dim.sh $prefix/dim &>/dev/null && \
+echo -e ' [ \e[1;32mDONE\e[m ]' || \
+echo -e ' [ \e[1;31mFAIL\e[m ]'
