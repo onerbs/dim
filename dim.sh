@@ -53,7 +53,7 @@ done
 for lib in ${_libs[@]}; do
     _files+=($(find $DIM -type f -exec grep -l $lib {} \;))
 done
-_files=($(echo ${_files[@]} | tr ' ' "\n" | sort | uniq))
+_files=($(echo ${_files[@]} | tr ' ' "\n" | grep -E '.*\.d$' | sort | uniq))
 _command="dmd ${R[@]} -de -w ${U[@]} -of=$_outfile ${_flags[@]} ${_files[@]} $_file.d"
 
 [[ $_debug == True ]] && {
